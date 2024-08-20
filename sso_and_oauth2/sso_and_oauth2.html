@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SSO & OAuth2 : quick and dirty</title>
+    <link href="favicon.png" rel="icon" type="image/png"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+
+      img {
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+# SSO & OAuth2 : quick and dirty
+
+---
+
+## Why do we need SSO?
+
+![shady business is shady](shady.jpg)
+
+???
+
+users have lots of identities
+- lots of passwords
+- lots of accounts
+- overwhelming to manage
+
+easy authentication methods are unsafe
+- password reuse
+- unsafe passwords
+- secret questions
+
+better usability
+- on average 10 apps per hour
+- single step authentication
+- single step password rotation or reset
+- easier to manage company-wide
+
+---
+
+## User Federation: the IdP
+
+![one identity](sauron.webp)
+
+_ Shibboleth, circa 2000, colorized _
+
+???
+
+Ash identity durbatulûk, ash identity gimbatul, ash identity thrakatulûk, agh secur-ity krimpatul.
+
+> One Ring to rule them all, One Ring to find them, One Ring to bring them all, and in the darkness bind them
+
+- An Identity Provider is tasked with identifying the user for multiple services
+- Better structure and formalization than ad-hoc systems
+- Shibboleth, LDAP, Active Directory, OAuth, SAML, WS-Federation, OpenID Connect, Gravatar (lolilol)
+
+---
+
+## Identity Delegation: the Token
+
+What is a token anyway?
+
+- authentifiable
+- bearer
+- credential
+
+Best practices:
+
+- scoped
+- short-lived
+
+???
+
+- authentifiable because it can be checked for authenticity
+- bearer because it can be used by the holder
+- credential because it allow to act on behalf of an user
+
+---
+
+## Hail Hydra!
+
+- Implementing OAuth2 is complex
+- Ory publishes an open-source OAuth2 server and tooling
+  - Hydra for OAuth2
+  - Keto for Authorization
+  - Kratos for User Federation
+  - Fosite as underlying library
+  - ...
+- Thanks Ory
+
+![Ory Hydra](hydra.webp)
+
+???
+
+- We only use Hydra because the other components already existed on our side
+- We might migrate someday
+- But not today
+
+---
+
+## Applications
+
+![spiderman meme](spiderman.webp)
+
+
+???
+
+- For us: google workspace and access to the internal tools
+- For our customers: any IdP they need
+
+---
+
+## Login Flow
+
+![login flow](login_flow.webp)
+
+???
+
+---
+
+## Providing Credentials 1/4 : Password
+
+![credentials_password](credentials_password.webp)
+
+???
+
+---
+
+## Providing Credentials 2/4 : IdP Delegation
+
+![credentials_idp_delegation](credentials_idp_delegation.webp)
+
+???
+
+---
+
+## Providing Credentials 3/4 : Magic Token
+
+![credentials_magic_token](credentials_magic_token.webp)
+
+???
+
+---
+
+## Providing Credentials 4/4 : Auto Login
+
+![credentials_auto_login](credentials_auto_login.webp)
+
+???
+
+---
+
+## Thank you
+
+Questions?
+
+???
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
