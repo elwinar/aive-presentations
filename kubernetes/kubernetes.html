@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Kubernetes</title>
+    <link href="favicon.png" rel="icon" type="image/png"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+
+      img {
+        max-width: 60%;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+# Kubernetes
+
+![containers](container_naufrage.jpeg)
+
+---
+
+## What is the issue?
+
+To manage an infrastructure you need to configure, maintain and monitor:
+- machines (specifications)
+- storage (is there disk space available)
+- compute (is the charge ok)
+- provisioning (initial setup)
+- point to point connectivity (can machines access each other)
+- network isolation (can others access our machines)
+- deployment (how to start it)
+- location (where to put it)
+- redundancy (how many of each)
+- configuration (synchronisation, update)
+- jobs (periodic runs)
+- communication (load-balancing)
+- operation (how to restart)
+- maintenance (how to upgrade)
+
+---
+
+## In practice
+
+![cable nightmare](cable_nightmare.webp)
+
+(and we're not even looking at the code)
+
+---
+
+## Kubernetes basics (1/2)
+
+K8S is based on one container-like concept, the **resource**.
+
+![companion cube](companion_cube.webp)
+
+???
+
+- configuration data
+- software
+- service
+
+---
+
+## Kubernetes basics (2/2)
+
+K8S manages resources using **controllers**.
+
+![reach stacker](reach_stacker.webp)
+
+???
+
+- controllers manage one type of resource
+- controllers are hierarchical
+
+---
+
+## Resource: Pod
+
+A **pod** is the basic resource manipulated by k8s.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+```
+
+???
+
+---
+
+## Resource: Deployment
+
+A **deployment** is a collection of identical pods.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-pod
+  template:
+    metadata:
+      labels:
+        app: nginx-pod
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+```
+
+---
+
+## Controllers: Deployments
+
+You create the deployment resource
+
+```
+$ kubectl get deployments
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment   3/3     3            3           18s
+```
+
+And the *DeploymentController* create the pods resources
+
+```
+$ kubectl get pods
+NAME                                READY     STATUS    RESTARTS   AGE
+nginx-deployment-75675f5897-7ci7o   1/1       Running   0          18s
+nginx-deployment-75675f5897-kzszj   1/1       Running   0          18s
+nginx-deployment-75675f5897-qqcnn   1/1       Running   0          18s
+```
+
+---
+
+## Resource: ConfigMap
+
+A **configmap** is a key-value store of configuration data.
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-configmap
+data:
+  key1: value1
+  key2: value2
+  key3: value3
+```
+
+---
+
+## Resource: ConfigMap x Pod (1/3)
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-pod
+spec:
+  containers:
+    - name: app
+      image: app
+      command: ["sleep", "3600"]
+      env:
+        - name: KEY1 
+          valueFrom:
+            configMapKeyRef:
+              name: app-configmap
+              key: key1
+```
+
+---
+
+## Resource: ConfigMap x Pod (2/3)
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-pod
+spec:
+  containers:
+    - name: app
+      image: app
+      command: ["sleep", "3600"]
+      envFrom:
+      - configMapRef:
+          name: app-configmap
+```
+
+---
+
+## Resource: ConfigMap x Pod (3/3)
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-pod
+spec:
+  containers:
+  - name: app
+    image: app
+    volumeMounts:
+    - name: config
+      mountPath: "/etc/app/config"
+      readOnly: true
+  volumes:
+  - name: config
+    configMap:
+      name: app-config
+```
+
+---
+
+## Resources Everywhere
+
+![resources everywhere](resources_everywhere.webp)
+
+---
+
+## Resources Everywhere
+
+- pod: set of containers
+- replicaSet: group of pods with scheduling rules
+- deployment: N replicaSet
+- daemonsetSet: one replicaSet per node
+- statefulSet: N replicaSet in order
+- cronJob: creates one job per trigger
+- job: pod that's expected to finish
+- configMap: arbitrary configuration data
+- service: load-balancer for pods or external services
+- persistentVolume: storage disk
+- persistentVolumeClaim: link between a pod and a persistentVolume
+- namespace: group resources with a namepsace (duh!)
+
+---
+
+## Thank you
+
+Questions?
+
+???
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
